@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+from django.db import models
 from write_from_excell import my_func
 
 
@@ -53,3 +53,18 @@ class Upload_File(models.Model):
 @receiver(post_save, sender=Upload_File)
 def post_save_function(sender, **kwargs):
     return my_func()
+
+
+class Body(models.Model):
+    body_of_vehicle = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.body_of_vehicle
+
+    class Meta:
+        db_table = 'body'
+
+
+class MyModel(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()

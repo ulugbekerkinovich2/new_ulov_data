@@ -1,47 +1,46 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import animation
+import PyPDF2
+import re
 
-t = np.linspace(0, 20, 100)
+import tabula
 
-# Позиционные массивы
-x = np.sin(np.pi / 6 * t)
-y = np.sin(np.pi / 4 * t)
-z = np.linspace(0, 100, 100)
+# Set the path to your PDF file
+pdf_file = "chap1.pdf"
 
-# Задаем набор данных для анимации
-dataSet = np.array([x, y, z])  # Комбинируем наши позиционные координаты
-numDataPoints = len(t)
+# Open the PDF file in binary mode
+with open(pdf_file, 'rb') as f:
 
+    # Create a PyPDF2 PdfFileReader object to read the PDF file
+    pdf_reader = PyPDF2.PdfFileReader(f)
 
-def animate_func(num):
-    ax.clear()  # Очищаем фигуру для обновления линии, точки,
-    # заголовка и осей  # Обновляем линию траектории (num+1 из-за индексации Python)
-    ax.plot3D(dataSet[0, :num + 1], dataSet[1, :num + 1],
-              dataSet[2, :num + 1], c='blue')  # Обновляем локацию точки
-    ax.scatter(dataSet[0, num], dataSet[1, num], dataSet[2, num],
-               c='blue', marker='o')  # Добавляем постоянную начальную точку
-    ax.plot3D(dataSet[0, 0], dataSet[1, 0], dataSet[2, 0],
-              c='black', marker='o')  # Задаем пределы для осей
-    ax.set_xlim3d([-1, 1])
-    ax.set_ylim3d([-1, 1])
-    ax.set_zlim3d([0, 100])
+    # Loop through each page in the PDF file
+    for page_num in range(pdf_reader.numPages):
 
-    # Добавляем метки
-    ax.set_title('Trajectory \nTime = ' + str(np.round(t[num], decimals=2)) + ' sec')
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    ax.set_zlabel('z')
+        # Get the text content of the page
+        page = pdf_reader.getPage(page_num)
+        page_text = page.extractText()
 
+        # Extract tables using Tabula
+        # Set the area of the page containing the table you want to extract
+        # You can use the "guess" parameter to automatically detect the table
+        # coordinates, or you can set them manually using the format (top, left, bottom, right)
+        table_area = (0, 0, 100, 100)
 
-# Рисуем анимацию
-fig = plt.figure()
-ax = plt.axes(projection='3d')
-line_ani = animation.FuncAnimation(fig, animate_func, interval=100,
-                                   frames=numDataPoints)
-plt.show()
+        # Extract the table from the page using Tabula
+        table_df = tabula.read_pdf(pdf_file, pages=page_num+1, area=table_area)
 
-f = "C://Users/ulugbek/PycharmProjects/auto_ru/animate_func.gif"
-writergif = animation.PillowWriter(fps=numDataPoints / 6)
-line_ani.save(f, writer=writergif)
+        # Print the contents of the table
+        if not table_df.empty:
+            print("Table found on page", page_num+1)
+            print(table_df)
+
+        # Extract text using regular expressions
+        # Define your regular expression pattern
+        pattern = r"Your pattern here"
+
+        # Search for the pattern in the page text
+        matches = re.findall(pattern, page_text)
+
+        # Print the matches
+        if matches:
+            print("Matches found on page", page_num+1)
+            print(matches)

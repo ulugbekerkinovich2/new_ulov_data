@@ -12,7 +12,7 @@ SECRET_KEY = 'django-insecure-tjph(d9qqpojbtu(3asvr0o$r)$$u2lma0!5)x6%ek+s#vb63k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'super-api.jprq.live']
 
 # Application definition
 
@@ -26,10 +26,21 @@ INSTALLED_APPS = [
     'basic_app',
     'rest_framework',
     'django_filters',
+    'graphene_django',
+    'channels',
 ]
 REST_FRAMEWORK = {
  'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
+REST_FRAMEWORK = {
+ 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+ 'PAGE_SIZE': 5
+}
+GRAPHENE = {
+    'SCHEMA': 'basic_app.schema.schema' # Where your Graphene schema lives
+}
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

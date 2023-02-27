@@ -1,5 +1,6 @@
 from rest_framework import serializers
-
+from rest_framework import serializers
+from .models import MyModel
 from basic_app import models
 
 
@@ -24,4 +25,16 @@ class FuelSerializer(serializers.ModelSerializer):
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Upload_File
+        fields = '__all__'
+
+
+class BodySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Body
+        fields = '__all__'
+
+
+class MyModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MyModel
         fields = '__all__'

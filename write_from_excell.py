@@ -8,6 +8,7 @@ import requests
 import xlrd
 
 from get_data import details
+from new1 import details1
 
 # from django.db import connections
 
