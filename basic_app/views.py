@@ -1,7 +1,10 @@
+import os
+
+from django.conf import settings
 from django.shortcuts import render
 from rest_framework import generics, filters
 from rest_framework.pagination import PageNumberPagination
-
+from .models import Video
 from basic_app import models, serializers
 
 
@@ -65,6 +68,8 @@ class DetailFile(generics.RetrieveUpdateDestroyAPIView):
 class ListBody(generics.ListCreateAPIView):
     queryset = models.Body.objects.all()
     serializer_class = serializers.BodySerializer
+    search_fields = ['body_of_vehicle']
+    filter_backends = [filters.SearchFilter]
 
 
 class DetailBody(generics.RetrieveUpdateDestroyAPIView):
@@ -129,3 +134,8 @@ class MyModelViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
 
         return Response(serializer.data)
+
+
+def video_view(request):
+    videos = Video.objects.all()
+    return render(request, 'video.html', context={'videos': videos})

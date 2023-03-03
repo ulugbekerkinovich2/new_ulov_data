@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 from graphene_django.views import GraphQLView
 from basic_app import views
@@ -14,15 +16,9 @@ urlpatterns = [
     path('files/<int:pk>', views.DetailFile.as_view()),
     path('body/', views.ListBody.as_view()),
     path('body/<int:pk>', views.DetailBody.as_view()),
-    path('graphql/', GraphQLView.as_view(schema=schema, graphiql=True))
+    path('graphql/', GraphQLView.as_view(schema=schema, graphiql=True)),
+    path('video/', views.video_view)
 ]
-from django.urls import path, include
-from rest_framework import routers
-from .views import MyModelViewSet
-
-router = routers.DefaultRouter()
-router.register(r'mymodel', MyModelViewSet)
-
 urlpatterns += [
-    path('', include(router.urls)),
-]
+                  # ...
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

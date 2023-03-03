@@ -3,6 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from write_from_excell import my_func
+from embed_video.fields import EmbedVideoField
 
 
 # Create your models here.
@@ -68,3 +69,26 @@ class Body(models.Model):
 class MyModel(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
+
+
+class Extra(models.Model):
+    file_name = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.file_name
+
+    class Meta:
+        db_table = 'extra'
+
+
+class Video(models.Model):
+    title = models.CharField(max_length=500)
+    added = models.DateTimeField(auto_now_add=True)
+    url = EmbedVideoField()
+
+    def __str__(self):
+        return str(self.title)
+
+    class Meta:
+        db_table = 'video'
+        ordering = ['-added']

@@ -1,8 +1,9 @@
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+TEMPLATES_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -28,18 +29,18 @@ INSTALLED_APPS = [
     'django_filters',
     'graphene_django',
     'channels',
+    'embed_video'
 ]
 REST_FRAMEWORK = {
- 'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 REST_FRAMEWORK = {
- 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
- 'PAGE_SIZE': 5
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5
 }
 GRAPHENE = {
-    'SCHEMA': 'basic_app.schema.schema' # Where your Graphene schema lives
+    'SCHEMA': 'basic_app.schema.schema'  # Where your Graphene schema lives
 }
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -56,7 +57,7 @@ ROOT_URLCONF = 'auto_ru.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': TEMPLATES_DIRS,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,10 +76,6 @@ WSGI_APPLICATION = 'auto_ru.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'car_com2',
@@ -86,8 +83,42 @@ DATABASES = {
         'PASSWORD': '0852',
         'HOST': '127.0.0.1',
         'PORT': '5432',
+    },
+    'sqlite': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# TODO
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'mydatabase',
+#         'USER': 'mydatabaseuser',
+#         'PASSWORD': 'mypassword',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     },
+#     'sqlite': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+# from django.db import connections
+# TODO
+# Get the database cursor for the PostgreSQL database
+# with connections['default'].cursor() as cursor:
+#     # Execute a query to get the data you want to transfer
+#     cursor.execute('SELECT * FROM mytable')
+#     rows = cursor.fetchall()
+# TODO
+# Get the database cursor for the SQLite database
+# with connections['sqlite'].cursor() as cursor:
+#     # Insert the data into the SQLite database
+#     for row in rows:
+#         cursor.execute('INSERT INTO mytable VALUES (?, ?)', row)
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -122,6 +153,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

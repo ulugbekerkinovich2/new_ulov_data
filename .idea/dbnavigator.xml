@@ -34,9 +34,18 @@
       </filter>
     </filter-actions>
   </component>
+  <component name="DBNavigator.Project.ExecutionManager">
+    <retain-sticky-names value="false" />
+  </component>
+  <component name="DBNavigator.Project.FileConnectionMappingManager">
+    <mapping file-url="file://$PROJECT_DIR$/backup.sql" connection-id="virtual-postgres-connection" session-id="" current-schema="" />
+  </component>
   <component name="DBNavigator.Project.ObjectQuickFilterManager">
     <last-used-operator value="EQUAL" />
     <filters />
+  </component>
+  <component name="DBNavigator.Project.ScriptExecutionManager" clear-outputs="true">
+    <recently-used-interfaces />
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
@@ -402,8 +411,8 @@
       </filters>
       <sorting enabled="true">
         <sorting-element type="RESERVED_WORD" id="keyword" />
-        <sorting-element type="RESERVED_WORD" id="datatype" />
         <sorting-element type="OBJECT" id="column" />
+        <sorting-element type="RESERVED_WORD" id="datatype" />
         <sorting-element type="OBJECT" id="table" />
         <sorting-element type="OBJECT" id="view" />
         <sorting-element type="OBJECT" id="materialized view" />
@@ -518,5 +527,8 @@
         </visibility-settings>
       </environment>
     </general-settings>
+  </component>
+  <component name="DBNavigator.Project.StatementExecutionManager">
+    <execution-variables />
   </component>
 </project>

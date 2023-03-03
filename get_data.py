@@ -1,15 +1,13 @@
 import difflib
-import re
 import time
-
+import pyexcelerate as px
+import pandas as pd
 import psycopg2
 import requests
 import xlwt
-import pandas as pd
-from openpyxl import load_workbook
+import openpyxl
 from openpyxl.utils import get_column_letter
-from openpyxl.styles import Font, Alignment
-from openpyxl.workbook.workbook import Workbook
+import xlrd
 
 connect = psycopg2.connect(
     dbname="car_com2",
@@ -36,39 +34,14 @@ def split_by2(text):
     return joined_data
 
 
-def converts(inputs, output):
-    input_workbook = load_workbook(f'{inputs}.xls', data_only=True)
-    output_workbook = Workbook()
-    for input_sheet in input_workbook:
-        output_sheet = output_workbook.create_sheet(title=input_sheet.title)
-        for row_index, row in enumerate(input_sheet.rows, start=1):
-            for col_index, cell in enumerate(row, start=1):
-                cell_value = cell.value
-                output_sheet.cell(row=row_index, column=col_index, value=cell_value)
-        for col in output_sheet.columns:
-            max_length = 0
-            column = col[0].column_letter
-            for cell in col:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except:
-                    pass
-            adjusted_width = max_length + 2
-            output_sheet.column_dimensions[column].width = adjusted_width
-            output_sheet.cell(row=1, column=col[0].column, value=column).font = Font(bold=True)
-            output_sheet.cell(row=1, column=col[0].column, value=column).alignment = Alignment(horizontal='center')
-    return output_workbook.save(f'{output}.xlsx')
-
-
-def max_string(strings):
-    max_length = 0
-    max_string = ""
-    for s in strings:
-        if len(s) > max_length:
-            max_length = len(s)
-            max_string = s
-    return max_string
+# def max_string(strings):
+#     max_length = 0
+#     max_string = ""
+#     for s in strings:
+#         if len(s) > max_length:
+#             max_length = len(s)
+#             max_string = s
+#     return max_string
 
 
 # Split by every third space
@@ -90,7 +63,8 @@ def remove_symbols(text, symbols):
 
 def telebots(mess):
     requests.get(
-        url=f"https://api.telegram.org/bot5082135962:AAFeaNW1dtleNNM4DDPBnvpC7XdtTZ687mo/sendMessage?chat_id=935920479&parse_mode=HTML&text={mess}")
+        url=f"https://api.telegram.org/bot5082135962:AAFeaNW1dtleNNM4DDPBnvpC7XdtTZ687mo/"
+            f"sendMessage?chat_id=935920479&parse_mode=HTML&text={mess}")
 
 
 def details(file_name):
@@ -149,10 +123,10 @@ def details(file_name):
 
     # style = xlwt.easyxf('align: vertical bottom, wrap: 1')
 
-    def split_by1(text):
-        split_by_1 = text.split(" ")
-        print("Split by every space:", split_by_1)
-        return split_by_1
+    # def split_by1(text):
+    #     split_by_1 = text.split(" ")
+    #     print("Split by every space:", split_by_1)
+    #     return split_by_1
 
     for i in data:
         try:
@@ -162,12 +136,13 @@ def details(file_name):
             # continue
         print('\n')
         print(count)
-        belgi = [',', '(', ')', '-', '+', '=', '#', '"', '"', '.', ':', ';', "'", "'", '"', ",", '/', '"\"']
+        belgi = [',', '(', ')', '-', '+', '=', '#', '"', '"', '.', ':', ';', "'", "'", '"', ",", '/', '"\"', '.,']
 
         # print(remove_symbols(i, belgi))
         origin = remove_symbols(i, belgi).split(' ')
-        print(i, '\n')
 
+        i = ' '.join(map(str, origin))
+        print(i, '\n')
         finded_mark = []
         for mark in list_of_cars_mark:
             if mark == 'man' and 'chacman' in i:
@@ -184,79 +159,113 @@ def details(file_name):
             continue
         finded_model = []
         for model in list_of_cars_model:
-            if model.isnumeric():
+            if len(model) < 3:
                 continue
-            if model in i:
+            if model.isnumeric() and int(model) < 100:
+                continue
+            if model.lower() in i:
+                print(model.lower())
                 finded_model.append(model)
-                print("model", model)
-                print("\033[36m" + "car_model: " f'------ {finded_model[0]}' + "\033[0m\n")
-                sheet1.write(count, 2, f'{finded_model[0]}', style)
+                # print("model", model)
+                finded_model = finded_model[0].replace('"', '')
+                print("\033[36m" + "car_model: " f'------ {finded_model}' + "\033[0m\n")
+                sheet1.write(count, 2, f'{finded_model}', style)
                 break
         for mark in list_of_cars_mark:
-            if mark in i:
-                print(mark)
+
+            if mark.lower() in i:
+                # print(mark)
                 print("\033[36m" + "car_mark: " f'------ {mark}' + "\033[0m\n")
                 sheet1.write(count, 1, f'{mark}', style)
                 break
-            if mark not in i:
+            if mark.lower() not in i:
                 if finded_model:
+                    # print(finded_model)
                     cursor.execute(
-                        # f"SELECT model_name, mark.mark_name FROM model1 left join mark on mark.id=model1.mark_name_id")
-                        f"SELECT mark.mark_name FROM model1 LEFT JOIN mark ON mark.id = model1.mark_name_id WHERE model1.model_name ='{finded_model[0]}'")
-                    row = cursor.fetchone()
-                    print("\033[36m" + "car_mark: " f'------ {row[0]}' + "\033[0m\n")
-                    sheet1.write(count, 1, f'{row[0]}', style)
-                    break
-        # todo : mersedes-brabus,changan-sc1027sca5, daf-te47m, дизелный, lada-21214,
+                        f"SELECT mark.mark_name "
+                        f"FROM model1 LEFT JOIN mark ON mark.id = model1.mark_name_id "
+                        f"WHERE model1.model_name =%s",
+                        (finded_model,))
+                    try:
+                        row = cursor.fetchone()
+                        print("\033[36m" + "car_mark: " f'------ {row[0]}' + "\033[0m\n")
+                        sheet1.write(count, 1, f'{row[0]}', style)
+                        break
+                    except Exception as e:
+                        print(e)
+                        continue
         for fuel in list_of_fuels:
             if fuel.lower() in i.lower():
                 print("\033[36m" + "car_fuel: " f'------ {fuel}' + "\033[0m\n")
                 sheet1.write(count, 4, f'{fuel}', style)
                 break
-        passanger_lc = ['']
         for body in list_body:
             if body.lower().strip() in i.lower():
                 print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                sheet1.write(count, 3, f'{body}', style)
                 break
             elif body.lower() not in i.lower():
+                if 'трактор' in i.lower():
+                    body = 'Трактор'
+                    print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                    break
                 if 'Микроавтобус'.lower() in i.lower():
                     body = 'Пассажирский (LCV)'
                     print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                    sheet1.write(count, 3, f'{body}', style)
                     break
                 elif 'Автобус'.lower() in i.lower():
                     body = 'Автобус'
                     print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                    sheet1.write(count, 3, f'{body}', style)
                     break
-                elif 'грузовой'.lower() or 'грузавой'.lower() in i.lower():
-                    body = 'Грузовой (LCV)'
+                elif 'ЛЕГКОВОЙ'.lower() in i.lower() and 'автомобиль мини'.lower() in i.lower():
+                    body = 'Легковой'
                     print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
-                    break
-                elif 'Седельный тягач'.lower() or 'сед.тягач'.lower() in i.lower():
-                    body = 'Грузовой (большой)'
-                    print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                    sheet1.write(count, 3, f'{body}', style)
                     break
                 elif 'легковой'.lower() in i.lower():
                     body = 'Легковой'
                     print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
-                elif 'ЛЕГКОВОЙ'.lower() in i.lower():
-                    body = 'Легковой'
+                    sheet1.write(count, 3, f'{body}', style)
+                    break
+                elif 'Седельный тягач'.lower() or 'сед.тягач'.lower() in i.lower():
+                    body = 'Грузовой (большой)'
                     print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                    sheet1.write(count, 3, f'{body}', style)
+                    break
                 elif 'PICK-UP'.lower() and 'Грузовой'.lower() in i or 'PICK UP'.lower() and 'Грузовой'.lower() in i.lower():
                     body = 'Легковой PICK UP'
                     print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                    sheet1.write(count, 3, f'{body}', style)
+                    break
+                elif 'AMBULANSE' or 'Скорая помощь' in i:
+                    body = 'Скорая помощь (LCV)'
+                    print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                    sheet1.write(count, 3, f'{body}', style)
+                    break
+                elif 'грузовой рефрижератор'.lower() in i.lower():
+                    body = 'Рефрижиратор (большой)'
+                    print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                    sheet1.write(count, 3, f'{body}', style)
+                    break
+                elif 'REFRIGERATOR'.lower() in i.lower():
+                    body = 'Рефрижиратор (LCV)'
+                    print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                    sheet1.write(count, 3, f'{body}', style)
+                    break
+                elif 'грузовой'.lower() or 'грузавой'.lower() in i.lower():
+                    body = 'Грузовой (LCV)'
+                    print("\033[36m" + "car_body: " f'------ {body}' + "\033[0m\n")
+                    sheet1.write(count, 3, f'{body}', style)
+                    break
 
         count += 1
-        time.sleep(4.5)
-    # wb.save(f'{file_name}.xls')
-    # df = pd.read_excel(f"{file_name}.xls")
-    # df.to_excel(f"{file_name}.xlsx", index=False)
-    # df = pd.read_excel(f'{file_name}.xlsx')
-    # # df = df.dropna(axis=1, how='all')
-    # df.to_excel(f'{file_name}.xlsx', index=False)
-    # converts(file_name, file_name)
-
-    # return f"{file_name}.xlsx"
+        # time.sleep(1.5)
+    wb.save(f'{file_name}.xls')
+    return f"{file_name}.xls"
 
 
-# details(file_name='vehicle_data')
+# details(file_name='yangi_data')
+# details(file_name='vehicle_data1')
 # details(file_name='new_file')
