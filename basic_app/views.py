@@ -1,11 +1,16 @@
 import os
-
+from rest_framework.viewsets import ModelViewSet
 from django.conf import settings
 from django.shortcuts import render
 from rest_framework import generics, filters
 from rest_framework.pagination import PageNumberPagination
-from .models import Video
+# from .models import Video
 from basic_app import models, serializers
+from .models import Vehicle
+from .serializers import VehicleSerializer
+from django.db.models import Count
+
+from rest_framework import filters
 
 
 # Create your views here.
@@ -139,3 +144,40 @@ class MyModelViewSet(viewsets.ModelViewSet):
 def video_view(request):
     videos = Video.objects.all()
     return render(request, 'video.html', context={'videos': videos})
+
+
+class VehicleViewSet(ModelViewSet):
+    queryset = Vehicle.objects.values('mark_name').annotate(count=Count('model_name'))
+    serializer_class = VehicleSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        data = [{'mark_name': item['mark_name'], 'count': item['count']} for item in queryset]
+        return Response(data)
+
+
+# Пассажирский (LCV)
+class VehicleViewSetCategory(ModelViewSet):
+    serializer_class = VehicleSerializer
+
+    def get_queryset(self):
+        queryset = Vehicle.objects.values('body').annotate(count=Count('model_name'))
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        return Response(queryset)
+
+
+class ModelFilterViewSet(ModelViewSet):
+    queryset = Vehicle.objects.all()
+    serializer_class = VehicleSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['model_name', 'mark_name']
+
+
+class VehicleSortViewSet(ModelViewSet):
+    queryset = Vehicle.objects.all()
+    serializer_class = VehicleSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['model_name', 'mark_name', 'body', 'fuel']

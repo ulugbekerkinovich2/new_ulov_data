@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework import serializers
-from .models import MyModel
+from .models import MyModel, Vehicle
 from basic_app import models
 
 
@@ -37,4 +37,10 @@ class BodySerializer(serializers.ModelSerializer):
 class MyModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyModel
+        fields = '__all__'
+
+
+class VehicleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle
         fields = '__all__'

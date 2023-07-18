@@ -28,11 +28,11 @@ def my_func():
     telebots('get files from excell')
     cursor.execute("SELECT file FROM upload_file")
     files = cursor.fetchall()[-1][0]
-    print(files)
+    print(files, '-----------shu file')
     cursor.execute("SELECT write_file_name FROM upload_file")
     file_name = cursor.fetchall()[-1][0]
     # print(file_name)
-    excel_data_df = pd.read_excel(f"{files}")
+    excel_data_df = pd.read_excel(f"media/{files}")
     num_rows = excel_data_df.shape[0]
     # print(num_rows)
     now = datetime.now()
@@ -68,8 +68,8 @@ def my_func():
 
         # Check if the request was successful
         if response.status_code == 200:
-            telebots('Message and file sent successfully!')
-            print("Message and file sent successfully!")
+            telebots('file sent successfully!')
+            print("file sent successfully!")
         else:
             telebots(f"Failed to send message and file. Response: {response.text}")
             print(f"Failed to send message and file. Response: {response.text}")

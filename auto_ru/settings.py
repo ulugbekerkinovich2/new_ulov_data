@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIRS = (os.path.join(BASE_DIR, 'templates'),)
@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'django_filters',
     'graphene_django',
     'channels',
-    'embed_video'
+    # 'embed_video'
 ]
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
@@ -76,15 +76,15 @@ WSGI_APPLICATION = 'auto_ru.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'car_com2',
+    #     'USER': 'postgres',
+    #     'PASSWORD': '0852',
+    #     'HOST': '127.0.0.1',
+    #     'PORT': '5432',
+    # },
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'car_com2',
-        'USER': 'postgres',
-        'PASSWORD': '0852',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    },
-    'sqlite': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
