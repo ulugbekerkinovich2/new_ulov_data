@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
-from graphene_django.views import GraphQLView
 from rest_framework import viewsets
 from rest_framework.routers import DefaultRouter
 
@@ -25,8 +24,6 @@ urlpatterns = [
     path('files/<int:pk>', views.DetailFile.as_view()),
     path('body/', views.ListBody.as_view()),
     path('body/<int:pk>', views.DetailBody.as_view()),
-    path('graphql/', GraphQLView.as_view(schema=schema, graphiql=True)),
-    path('video/', views.video_view)
 
 ]
 urlpatterns += router.urls
