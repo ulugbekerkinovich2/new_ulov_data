@@ -5,7 +5,6 @@ from rest_framework import viewsets
 from rest_framework.routers import DefaultRouter
 
 from basic_app import views
-from basic_app.schema import schema
 
 router = DefaultRouter()
 router.register('marks_data', views.VehicleViewSet, basename='marks_data')
