@@ -27,8 +27,8 @@ INSTALLED_APPS = [
     'basic_app',
     'rest_framework',
     'django_filters',
-    'graphene_django',
-    'channels',
+    # 'graphene_django',
+    # 'channels',
     # 'embed_video'
 ]
 REST_FRAMEWORK = {
