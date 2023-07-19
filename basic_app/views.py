@@ -3,7 +3,8 @@ from rest_framework.viewsets import ModelViewSet
 from django.conf import settings
 from django.shortcuts import render
 from rest_framework import generics, filters
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
+
 # from .models import Video
 from basic_app import models, serializers
 from .models import Vehicle
@@ -11,6 +12,20 @@ from .serializers import VehicleSerializer
 from django.db.models import Count
 
 from rest_framework import filters
+
+
+def paginate_data(request):
+    # Get the values for limit and offset from the GET request parameters
+    limit = int(request.GET.get('limit', 10))
+    offset = int(request.GET.get('offset', 0))
+
+    # Fetch the data from the database using the limit and offset values
+    queryset = YourModel.objects.all()[offset:offset + limit]
+
+    # Serialize the data if needed
+    serialized_data = serialize_data(queryset)
+
+    return JsonResponse(serialized_data, safe=False)
 
 
 # Create your views here.
@@ -169,11 +184,17 @@ class VehicleViewSetCategory(ModelViewSet):
         return Response(queryset)
 
 
+class LimitOffsetPaginator(LimitOffsetPagination):
+    default_limit = 20
+    max_limit = 100
+
+
 class ModelFilterViewSet(ModelViewSet):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['model_name', 'mark_name']
+    pagination_class = LimitOffsetPaginator
 
 
 class VehicleSortViewSet(ModelViewSet):
